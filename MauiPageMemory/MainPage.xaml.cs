@@ -1,25 +1,27 @@
-﻿namespace MauiPageMemory
+﻿using System.Diagnostics;
+
+namespace MauiPageMemory
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
-
         public MainPage()
         {
             InitializeComponent();
+
+            Appearing += OnAppearing;
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        private void OnAppearing(object? sender, EventArgs e)
         {
-            count++;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            var totalMemory = GC.GetTotalMemory(true);
+            Debug.WriteLine($"Memory: {totalMemory}");
+        }
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
-
-            SemanticScreenReader.Announce(CounterBtn.Text);
+        private async void Button_OnClicked(object? sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync(nameof(Page2));
         }
     }
-
 }
